@@ -24,3 +24,19 @@ The class `net::async::tcp::socket` inherits from `net::async::socket` and can b
 
 #### `net::async::udp::socket`
 The class `net::async::udp::socket` inherits from `net::async::socket` and can be used for asynchronous datagram sockets.
+
+## `net::async::event::dispatcher`
+* The class `net::async::event::dispatcher` can be used for monitoring I/O socket events.
+* The monitored sockets are subclasses of `net::async::event::socket`.
+* A timeout can be passed as parameter to the socket methods to have the dispatcher call the socket's timeout handler when the timeout has expired and no data has been transferred.
+* This class has a method `run()` which waits for I/O socket events and invokes the sockets' handlers.
+
+## `net::async::event::dispatchers`
+* List of dispatchers.
+
+## `net::async::event::socket`
+* Asynchronous socket associated with a dispatcher.
+
+## Preprocessor macro `USE_SOCKET_TEMPLATE`
+* If you don't want to have virtual methods in the socket class to avoid virtual methods being called, activate this macro in the Makefile and check `test_event_template.cpp` and `Makefile.test_event_template`.
+* An example using virtual methods can bee seen in `test_event.cpp` and `Makefile.test_event`.

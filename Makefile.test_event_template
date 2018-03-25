@@ -1,0 +1,68 @@
+CC=g++
+CXXFLAGS=-g -std=c++11 -Wall -pedantic -D_GNU_SOURCE -Wno-format -Wno-long-long -I.. -I.
+CXXFLAGS+=-DUSE_SOCKET_TEMPLATE
+
+ifeq ($(shell uname), Linux)
+  CXXFLAGS+=-DHAVE_RECVMMSG -DHAVE_SENDMMSG -DHAVE_ACCEPT4
+endif
+
+ifeq ($(shell uname), FreeBSD)
+  CXXFLAGS+=-DHAVE_RECVMMSG -DHAVE_SENDMMSG -DHAVE_ACCEPT4
+endif
+
+ifeq ($(shell uname), NetBSD)
+  CXXFLAGS+=-DHAVE_RECVMMSG -DHAVE_SENDMMSG -DHAVE_PACCEPT
+endif
+
+ifeq ($(shell uname), OpenBSD)
+  CXXFLAGS+=-DHAVE_ACCEPT4
+endif
+
+ifeq ($(shell uname), DragonFly)
+  CXXFLAGS+=-DHAVE_ACCEPT4
+endif
+
+LDFLAGS=-lpthread
+
+MAKEDEPEND=${CC} -MM
+PROGRAM=test_event_template
+
+OBJS = net/internal/socket/address/address.o \
+       net/internal/socket/socket.o \
+       net/async/event/socket.o \
+       test_event_template.o
+
+ifeq ($(shell uname), FreeBSD)
+  OBJS+=internal/bsd/selector.o
+endif
+ifeq ($(shell uname), NetBSD)
+  OBJS+=internal/bsd/selector.o
+endif
+ifeq ($(shell uname), OpenBSD)
+  OBJS+=internal/bsd/selector.o
+endif
+ifeq ($(shell uname), DragonFly)
+  OBJS+=internal/bsd/selector.o
+endif
+
+DEPS:= ${OBJS:%.o=%.d}
+
+all: $(PROGRAM)
+
+${PROGRAM}: ${OBJS}
+	${CC} ${LDFLAGS} ${OBJS} ${LIBS} -o $@
+
+clean:
+	rm -f ${PROGRAM} ${OBJS} ${DEPS}
+
+${OBJS} ${DEPS} ${PROGRAM} : Makefile.test_event_template
+
+.PHONY : all clean
+
+%.d : %.cpp
+	${MAKEDEPEND} ${CXXFLAGS} $< -MT ${@:%.d=%.o} > $@
+
+%.o : %.cpp
+	${CC} ${CXXFLAGS} -c -o $@ $<
+
+-include ${DEPS}
