@@ -79,6 +79,12 @@ namespace net {
         using net::socket::sendmmsg;
         int sendmmsg(struct mmsghdr* msgvec, unsigned vlen) = delete;
 #endif // defined(HAVE_SENDMMSG)
+
+#if defined(HAVE_SENDFILE)
+        // Send file.
+        using net::socket::sendfile;
+        ssize_t sendfile(int in_fd, off_t& offset, size_t count) = delete;
+#endif // defined(HAVE_SENDFILE)
     };
   }
 }

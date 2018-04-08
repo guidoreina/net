@@ -5,6 +5,11 @@
 #include <netinet/tcp.h>
 #include <errno.h>
 #include <limits.h>
+
+#if defined(HAVE_SENDFILE) && defined(__linux__)
+  #include <sys/sendfile.h>
+#endif
+
 #include "net/internal/socket/socket.h"
 
 #if !defined(POLLRDHUP)
@@ -786,6 +791,70 @@ namespace net {
         return true;
       }
 #endif // defined(HAVE_SENDMMSG)
+
+#if defined(HAVE_SENDFILE)
+      ssize_t sendfile(handle_t sock,
+                       int in_fd,
+                       off_t* offset,
+                       size_t count)
+      {
+#if defined(__linux__)
+        ssize_t ret;
+        while (((ret = ::sendfile(sock,
+                                  in_fd,
+                                  offset,
+                                  count)) < 0) &&
+               (errno == EINTR));
+
+        return ret;
+#elif defined(__FreeBSD__) || defined(__DragonFly__)
+        int ret;
+        off_t sbytes;
+        size_t sent = 0;
+
+        while (((ret = ::sendfile(in_fd,
+                                  sock,
+                                  *offset,
+                                  count - sent,
+                                  nullptr,
+                                  &sbytes,
+                                  0)) < 0) &&
+               (errno == EINTR)) {
+          *offset += sbytes;
+          sent += sbytes;
+        }
+
+        *offset += sbytes;
+        sent += sbytes;
+
+        return (sent > 0) ? sent : ret;
+#endif
+      }
+
+      bool sendfile(handle_t sock,
+                    int in_fd,
+                    off_t* offset,
+                    size_t count,
+                    int timeout)
+      {
+        do {
+          ssize_t ret;
+          if ((ret = socket::sendfile(sock, in_fd, offset, count)) >= 0) {
+            if ((count -= ret) == 0) {
+              return true;
+            }
+
+            if (!wait_writable(sock, timeout)) {
+              return false;
+            }
+          } else {
+            if ((errno != EAGAIN) || (!wait_writable(sock, timeout))) {
+              return false;
+            }
+          }
+        } while (true);
+      }
+#endif // defined(HAVE_SENDFILE)
 
       bool wait_readable(handle_t sock, int timeout)
       {

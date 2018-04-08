@@ -358,6 +358,12 @@ namespace net {
       bool sendmmsg(const struct mmsghdr* msgvec, unsigned vlen, int timeout);
 #endif // defined(HAVE_SENDMMSG)
 
+#if defined(HAVE_SENDFILE)
+      // Send file.
+      ssize_t sendfile(int in_fd, off_t& offset, size_t count);
+      bool sendfile(int in_fd, off_t& offset, size_t count, int timeout);
+#endif // defined(HAVE_SENDFILE)
+
       // Get handle.
       handle_t handle() const;
 
@@ -1313,6 +1319,25 @@ namespace net {
     return internal::socket::sendmmsg(_M_handle, msgvec, vlen, 0, timeout);
   }
 #endif // defined(HAVE_SENDMMSG)
+
+#if defined(HAVE_SENDFILE)
+  inline ssize_t socket::sendfile(int in_fd, off_t& offset, size_t count)
+  {
+    return internal::socket::sendfile(_M_handle, in_fd, &offset, count);
+  }
+
+  inline bool socket::sendfile(int in_fd,
+                               off_t& offset,
+                               size_t count,
+                               int timeout)
+  {
+    return internal::socket::sendfile(_M_handle,
+                                      in_fd,
+                                      &offset,
+                                      count,
+                                      timeout);
+  }
+#endif // defined(HAVE_SENDFILE)
 
   inline socket::handle_t socket::handle() const
   {

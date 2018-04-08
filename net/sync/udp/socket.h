@@ -48,6 +48,15 @@ namespace net {
           bool writev(const struct iovec* iov,
                       unsigned iovcnt,
                       int timeout) = delete;
+
+#if defined(HAVE_SENDFILE)
+          // Send file.
+          using net::sync::socket::sendfile;
+          bool sendfile(int in_fd,
+                        off_t& offset,
+                        size_t count,
+                        int timeout) = delete;
+#endif // defined(HAVE_SENDFILE)
       };
 
       inline bool socket::create(domain d)

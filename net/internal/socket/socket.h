@@ -197,6 +197,17 @@ namespace net {
                     int timeout);
 #endif // defined(HAVE_SENDMMSG)
 
+#if defined(HAVE_SENDFILE)
+      // Send file.
+      ssize_t sendfile(handle_t sock, int in_fd, off_t* offset, size_t count);
+
+      bool sendfile(handle_t sock,
+                    int in_fd,
+                    off_t* offset,
+                    size_t count,
+                    int timeout);
+#endif // defined(HAVE_SENDFILE)
+
       // Wait for socket to be readable.
       bool wait_readable(handle_t sock, int timeout);
 

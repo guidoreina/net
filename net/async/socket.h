@@ -95,6 +95,15 @@ namespace net {
                       unsigned vlen,
                       int timeout) = delete;
 #endif // defined(HAVE_SENDMMSG)
+
+#if defined(HAVE_SENDFILE)
+        // Send file.
+        using net::socket::sendfile;
+        bool sendfile(int in_fd,
+                      off_t& offset,
+                      size_t count,
+                      int timeout) = delete;
+#endif // defined(HAVE_SENDFILE)
     };
   }
 }
