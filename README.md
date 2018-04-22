@@ -25,6 +25,9 @@ The class `net::async::tcp::socket` inherits from `net::async::socket` and can b
 #### `net::async::udp::socket`
 The class `net::async::udp::socket` inherits from `net::async::socket` and can be used for asynchronous datagram sockets.
 
+#### `net::ssl::sync::tcp::socket`
+The class `net::ssl::sync::tcp::socket` can be used for TLS/SSL connections.
+
 ## `net::async::event::dispatcher`
 * The class `net::async::event::dispatcher` can be used for monitoring I/O socket events.
 * The monitored sockets are subclasses of `net::async::event::socket`.

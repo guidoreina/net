@@ -195,6 +195,9 @@ namespace net {
       // Destructor.
       ~socket();
 
+      // Clear socket.
+      void clear();
+
       // Create socket.
       enum class domain {
         local  = AF_UNIX,
@@ -367,7 +370,10 @@ namespace net {
       // Get handle.
       handle_t handle() const;
 
-    protected:
+      // Set handle.
+      void handle(handle_t h);
+
+    private:
       handle_t _M_handle;
   };
 
@@ -864,6 +870,11 @@ namespace net {
     close();
   }
 
+  inline void socket::clear()
+  {
+    _M_handle = invalid_handle;
+  }
+
   inline bool socket::create(domain d, type t)
   {
     return ((_M_handle = internal::socket::create(static_cast<int>(d),
@@ -1342,6 +1353,11 @@ namespace net {
   inline socket::handle_t socket::handle() const
   {
     return _M_handle;
+  }
+
+  inline void socket::handle(handle_t h)
+  {
+    _M_handle = h;
   }
 }
 

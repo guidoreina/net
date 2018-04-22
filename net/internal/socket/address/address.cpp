@@ -123,6 +123,13 @@ namespace net {
 
             *addrlen = offsetof(struct sockaddr_un, sun_path) + len + 1;
 
+#if defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__) || \
+    defined(__DragonFly__)
+            addr->sun_len = static_cast<uint8_t>(*addrlen);
+#endif
+
             return true;
           }
 
@@ -141,6 +148,13 @@ namespace net {
             memset(addr->sun_path + len, 0, sizeof(addr->sun_path) - len);
 
             *addrlen = sizeof(struct sockaddr_un);
+
+#if defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__) || \
+    defined(__DragonFly__)
+            addr->sun_len = static_cast<uint8_t>(*addrlen);
+#endif
 
             return true;
           }
@@ -177,6 +191,13 @@ namespace net {
 
             *addrlen = sizeof(struct sockaddr_un);
           }
+
+#if defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__) || \
+    defined(__DragonFly__)
+          addr->sun_len = static_cast<uint8_t>(*addrlen);
+#endif
         }
 
         bool build(const char* address,
