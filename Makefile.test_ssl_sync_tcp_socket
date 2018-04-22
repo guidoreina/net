@@ -1,0 +1,34 @@
+CC=g++
+CXXFLAGS=-g -std=c++11 -Wall -pedantic -D_GNU_SOURCE -Wno-format -Wno-long-long -I.
+LDFLAGS=-lssl -lcrypto
+
+MAKEDEPEND=${CC} -MM
+PROGRAM=test_ssl_sync_tcp_socket
+
+OBJS = net/internal/socket/address/address.o \
+       net/internal/socket/socket.o \
+       net/internal/ssl/openssl.o \
+       net/socket.o \
+       test_ssl_sync_tcp_socket.o
+
+DEPS:= ${OBJS:%.o=%.d}
+
+all: $(PROGRAM)
+
+${PROGRAM}: ${OBJS}
+	${CC} ${LDFLAGS} ${OBJS} ${LIBS} -o $@
+
+clean:
+	rm -f ${PROGRAM} ${OBJS} ${DEPS}
+
+${OBJS} ${DEPS} ${PROGRAM} : Makefile.test_ssl_sync_tcp_socket
+
+.PHONY : all clean
+
+%.d : %.cpp
+	${MAKEDEPEND} ${CXXFLAGS} $< -MT ${@:%.d=%.o} > $@
+
+%.o : %.cpp
+	${CC} ${CXXFLAGS} -c -o $@ $<
+
+-include ${DEPS}
